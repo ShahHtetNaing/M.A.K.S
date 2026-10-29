@@ -104,10 +104,10 @@ const Quran: React.FC = () => {
     setIsSearchingAyats(true);
     setErrorStatus(null);
     try {
-      const response = await fetch(`https://api.alquran.cloud/v1/search/${searchQuery}/all/en.sahih`);
+      const response = await fetch(`https://api.alquran.cloud/v1/search/${encodeURIComponent(searchQuery.trim())}/all/en.sahih`);
       const data = await response.json();
       if (data.status === 'OK') {
-        setAyatResults(data.data.results);
+        setAyatResults(Array.isArray(data.data?.matches) ? data.data.matches : []);
       } else {
         setAyatResults([]);
       }
