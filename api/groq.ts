@@ -1,6 +1,6 @@
-import { handleGroqProxy } from '../../server/groq';
+import { handleGroqProxy } from '../server/groq.js';
 
-export default async (req: Request): Promise<Response> => {
+const respond = async (req: Request): Promise<Response> => {
   const raw = req.method === 'POST' ? await req.text() : '';
   const { status, body } = await handleGroqProxy(req.method, raw, {
     GROQ_API_KEY: process.env.GROQ_API_KEY,
@@ -12,4 +12,4 @@ export default async (req: Request): Promise<Response> => {
   });
 };
 
-export const config = { path: '/api/groq' };
+export default { fetch: respond };

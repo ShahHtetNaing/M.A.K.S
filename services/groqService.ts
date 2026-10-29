@@ -138,7 +138,7 @@ export const getVerseDeepAnalysis = async (verseText: string, translation: strin
     ], { maxTokens: 2000 }) || "No analysis available.";
   } catch (error: any) {
     if (error instanceof AiUnavailableError) {
-      return "AI analysis is currently disabled. Please contact the administrator to add a Groq API key (GROQ_API_KEY) in the Netlify settings.";
+      return "AI analysis is currently disabled. Please contact the administrator to add a Groq API key (GROQ_API_KEY) in the Vercel project settings.";
     }
     return "The AI analysis feature is currently unavailable. The rest of the Quran text remains accessible.";
   }

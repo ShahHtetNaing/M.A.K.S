@@ -16,9 +16,9 @@ Prerequisites: Node.js 18+
 
 The Vite dev/preview server serves `/api/groq` itself (see `vite.config.ts`).
 
-## Deploy (Netlify)
+## Deploy (Vercel)
 
-`netlify.toml` builds with `npm run build`, publishes `dist`, and deploys `netlify/functions/groq.ts` at `/api/groq`.
-Set `GROQ_API_KEY` (and optionally `GROQ_MODEL`) under **Site configuration → Environment variables**, then redeploy.
+Import the repo in Vercel; it auto-detects Vite (build `npm run build`, output `dist`) and deploys `api/groq.ts` as a serverless function at `/api/groq`.
+Set `GROQ_API_KEY` (and optionally `GROQ_MODEL`) under **Project Settings → Environment Variables**, then redeploy.
 
 Default model chain: `GROQ_MODEL` (if set) → `openai/gpt-oss-120b` → `qwen/qwen3.8-27b` → `openai/gpt-oss-20b`. Groq retires models regularly; check https://console.groq.com/docs/deprecations if AI calls start failing.

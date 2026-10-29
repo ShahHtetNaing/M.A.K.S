@@ -1,4 +1,4 @@
-// Shared Groq proxy used by the Netlify function and the Vite dev/preview server.
+// Shared Groq proxy used by the Vercel function (api/groq.ts) and the Vite dev/preview server.
 // The API key stays server-side; the browser only talks to /api/groq.
 
 const GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions';
