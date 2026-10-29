@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Send, X, Loader2, Sparkles, ExternalLink, AlertTriangle } from 'lucide-react';
-import { askGemini, openInGoogleTranslate, isAiAvailable } from '../services/geminiService';
+import { Send, X, Loader2, Sparkles, AlertTriangle } from 'lucide-react';
+import { askTutor, checkAiAvailability } from '../services/groqService';
 
 interface AIChatModalProps {
   context?: string;
@@ -14,7 +14,11 @@ const AIChatModal: React.FC<AIChatModalProps> = ({ context }) => {
   const [isLoading, setIsLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  const hasKey = isAiAvailable();
+  const [hasKey, setHasKey] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    if (isOpen && !hasKey) checkAiAvailability().then(setHasKey);
+  }, [isOpen]);
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -25,12 +29,13 @@ const AIChatModal: React.FC<AIChatModalProps> = ({ context }) => {
   const handleSend = async () => {
     if (!input.trim() || !hasKey) return;
     const userMsg = input;
+    const history = messages;
     setMessages(prev => [...prev, { text: userMsg, sender: 'user' }]);
     setInput('');
     setIsLoading(true);
 
     try {
-      const response = await askGemini(userMsg, context);
+      const response = await askTutor(userMsg, context, history);
       setMessages(prev => [...prev, { text: response, sender: 'ai' }]);
     } catch (error) {
       setMessages(prev => [...prev, { text: 'An error occurred. Please try again later.', sender: 'ai' }]);
@@ -59,7 +64,7 @@ const AIChatModal: React.FC<AIChatModalProps> = ({ context }) => {
             <button onClick={() => setIsOpen(false)}><X size={20} /></button>
           </div>
 
-          {!hasKey && (
+          {hasKey === false && (
             <div className="p-3 bg-amber-50 border-b border-amber-100 flex items-center space-x-2 text-[10px] text-amber-800 font-bold uppercase tracking-tight">
               <AlertTriangle size={14} />
               <span>AI features disabled: No API Key found</span>
@@ -71,7 +76,7 @@ const AIChatModal: React.FC<AIChatModalProps> = ({ context }) => {
               <div className="text-center py-12 text-gray-400">
                 <p className="font-bold text-emerald-900">Welcome to M.A.K.S!</p>
                 <p className="text-xs mt-2 px-6">
-                  {hasKey 
+                  {hasKey !== false
                     ? "I am your dedicated AI tutor. Ask me about Arabic grammar, Quranic verses, or your learning path."
                     : "The AI Tutor is currently offline because no API Key was provided during setup. You can still use the rest of the site normally."}
                 </p>
@@ -82,7 +87,7 @@ const AIChatModal: React.FC<AIChatModalProps> = ({ context }) => {
                 <div className={`relative group max-w-[85%] p-4 rounded-2xl text-sm ${
                   m.sender === 'user' ? 'bg-emerald-600 text-white shadow-md' : 'bg-white border border-emerald-100 text-gray-800 shadow-sm'
                 }`}>
-                  <p>{m.text}</p>
+                  <p className="whitespace-pre-wrap">{m.text}</p>
                 </div>
               </div>
             ))}
@@ -101,7 +106,7 @@ const AIChatModal: React.FC<AIChatModalProps> = ({ context }) => {
               disabled={!hasKey}
               onChange={(e) => setInput(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && handleSend()}
-              placeholder={hasKey ? "Type your question..." : "AI Chat is disabled"}
+              placeholder={hasKey ? "Type your question..." : hasKey === null ? "Connecting to AI Tutor..." : "AI Chat is disabled"}
               className="flex-1 border rounded-full px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 disabled:bg-gray-50"
             />
             <button

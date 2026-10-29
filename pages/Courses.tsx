@@ -2,8 +2,38 @@
 import React, { useState, useMemo } from 'react';
 import { MOCK_COURSES } from '../constants';
 import { Course, Lesson, PathwayType } from '../types';
-import { Play, FileText, CheckCircle, ChevronRight, BookOpen, Clock, BarChart, Mic, Square, Loader2, Sparkles, Target, Award, ListFilter, Layers, ArrowRight, Languages, ScrollText, Book, PenTool, Lightbulb, GraduationCap, BrainCircuit, ClipboardCheck, ArrowLeft, ChevronLeft, ExternalLink } from 'lucide-react';
-import { getPronunciationFeedback, askGemini, openInGoogleTranslate } from '../services/geminiService';
+import { Play, FileText, CheckCircle, ChevronRight, BookOpen, Clock, BarChart, Mic, Square, Loader2, Sparkles, Target, Award, ListFilter, Layers, ArrowRight, Languages, ScrollText, Book, PenTool, Lightbulb, GraduationCap, BrainCircuit, ClipboardCheck, ArrowLeft, ChevronLeft } from 'lucide-react';
+import { getPronunciationFeedback, askTutor } from '../services/groqService';
+import { extractArabicSegments, hasArabic } from '../services/ttsService';
+import PronounceButton from '../components/PronounceButton';
+
+const PronounceWord: React.FC<{ word: string }> = ({ word }) => (
+  <span className="inline-flex items-center align-baseline">
+    <span className="arabic-font">{word}</span>
+    <PronounceButton
+      text={word}
+      iconSize={14}
+      title={`Listen: ${word}`}
+      className="ml-1 p-1 rounded-lg text-emerald-500 hover:bg-emerald-100 hover:text-emerald-700 transition-all"
+    />
+  </span>
+);
+
+// Arabic-script runs inside lesson text become tap-to-listen word cards.
+const renderWithArabicAudio = (content: string): React.ReactNode => {
+  const segments = extractArabicSegments(content);
+  if (segments.length === 0) return content;
+  const parts: React.ReactNode[] = [];
+  let rest = content;
+  segments.forEach((segment, i) => {
+    const at = rest.indexOf(segment);
+    if (at > 0) parts.push(rest.slice(0, at));
+    parts.push(<PronounceWord key={i} word={segment} />);
+    rest = rest.slice(at + segment.length);
+  });
+  if (rest) parts.push(rest);
+  return parts;
+};
 
 const Courses: React.FC = () => {
   const [activePathway, setActivePathway] = useState<PathwayType>('ARABIC');
@@ -48,7 +78,7 @@ const Courses: React.FC = () => {
       Exercise Task: ${activeLesson?.exercises}. 
       Student Answer: "${userExerciseInput}". 
       Provide constructive feedback using the AI function: ${activeLesson?.aiFunction}.`;
-      const result = await askGemini(prompt);
+      const result = await askTutor(prompt);
       setFeedback(result);
     } catch (e) {
       setFeedback("Good effort! The AI encountered an error while grading, but your attempt shows progress.");
@@ -126,16 +156,17 @@ const Courses: React.FC = () => {
                         <div className="bg-white border-2 border-emerald-100 rounded-[2.5rem] p-10 md:p-14 relative overflow-hidden group shadow-lg shadow-emerald-50">
                              <div className="flex justify-between items-start mb-4">
                                <h5 className="text-emerald-600 font-black text-xs uppercase tracking-widest">{currentStep.title}</h5>
-                               <button 
-                                 onClick={() => openInGoogleTranslate(currentStep.content)}
-                                 className="px-4 py-2 bg-emerald-50 text-emerald-600 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center space-x-1 hover:bg-emerald-600 hover:text-white transition-all"
-                               >
-                                 <ExternalLink size={12} />
-                                 <span>Pronounce</span>
-                               </button>
+                               {hasArabic(currentStep.content) && (
+                                 <PronounceButton
+                                   text={extractArabicSegments(currentStep.content).join(' ، ')}
+                                   label="Pronounce"
+                                   iconSize={12}
+                                   className="px-4 py-2 bg-emerald-50 text-emerald-600 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center space-x-1 hover:bg-emerald-600 hover:text-white transition-all"
+                                 />
+                               )}
                              </div>
                              <div className="text-2xl text-emerald-900 font-bold leading-relaxed relative z-10 whitespace-pre-wrap arabic-font-support">
-                                {currentStep.content}
+                                {renderWithArabicAudio(currentStep.content)}
                              </div>
                              <div className="absolute top-0 left-0 w-2 bg-emerald-500 h-full"></div>
                         </div>
@@ -190,13 +221,11 @@ const Courses: React.FC = () => {
                                 <div className="p-10 bg-emerald-900/50 rounded-[2.5rem] border border-emerald-800 shadow-inner text-center w-full max-w-md">
                                     <label className="block text-[10px] font-black text-emerald-400 uppercase tracking-widest mb-4">Pronunciation Prompt</label>
                                     <span className="arabic-font text-5xl block mb-6">تَمْرِينُ النُّطْقِ</span>
-                                    <button 
-                                      onClick={() => openInGoogleTranslate('تَمْرِينُ النُّطْقِ')}
+                                    <PronounceButton
+                                      text="تَمْرِينُ النُّطْقِ"
+                                      label="Listen to correct pronunciation"
                                       className="mx-auto flex items-center space-x-2 text-emerald-400 hover:text-white transition-colors text-xs font-bold"
-                                    >
-                                      <ExternalLink size={14} />
-                                      <span>Listen to correct pronunciation</span>
-                                    </button>
+                                    />
                                 </div>
                                 
                                 <div className="flex flex-col items-center space-y-4">
@@ -234,7 +263,7 @@ const Courses: React.FC = () => {
                                         className="px-12 py-4 bg-emerald-500 text-white rounded-2xl font-black text-sm uppercase tracking-widest hover:bg-emerald-400 transition-all disabled:opacity-50 active:scale-95 shadow-xl shadow-emerald-500/20 flex items-center space-x-2"
                                     >
                                         {isAnalysing ? <Loader2 size={18} className="animate-spin" /> : <PenTool size={18} />}
-                                        <span>Submit to Gemini AI</span>
+                                        <span>Submit to Groq AI</span>
                                     </button>
                                 </div>
                             </div>

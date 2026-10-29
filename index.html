@@ -4,6 +4,8 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Google Translate TTS rejects requests that carry a Referer header -->
+    <meta name="referrer" content="no-referrer" />
     <title>M.A.K.S - Modern Arabic & Quran Study</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
@@ -22,7 +24,6 @@
     "react/": "https://esm.sh/react@^19.2.4/",
     "react": "https://esm.sh/react@^19.2.4",
     "recharts": "https://esm.sh/recharts@^3.7.0",
-    "@google/genai": "https://esm.sh/@google/genai@^1.38.0",
     "lucide-react": "https://esm.sh/lucide-react@^0.563.0"
   }
 }

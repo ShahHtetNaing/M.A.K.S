@@ -2,7 +2,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Surah, Verse, LughatWord } from '../types';
 import { fetchSurahContent, fetchSurahList } from '../services/quranService';
-import { getLughatAnalysis, getVerseDeepAnalysis, openInGoogleTranslate } from '../services/geminiService';
+import { getLughatAnalysis, getVerseDeepAnalysis, openInGoogleTranslate } from '../services/groqService';
+import PronounceButton from '../components/PronounceButton';
 import { 
   ChevronRight, Search, Layers, Sparkles, Loader2, BookOpen, Globe, Info, 
   MapPin, Hash, MousePointer2, Music, ExternalLink, AlertCircle, Play, 
@@ -352,12 +353,17 @@ const Quran: React.FC = () => {
                   <p className="arabic-font text-6xl text-emerald-950 mb-2">{selectedWord.word}</p>
                   <p className="text-xl font-bold text-emerald-700 mb-4">{selectedWord.meaning}</p>
                   
-                  <button 
-                    onClick={() => openInGoogleTranslate(selectedWord.word)}
+                  <PronounceButton
+                    text={selectedWord.word}
+                    label="Pronounce Word"
                     className="w-full bg-emerald-600 text-white py-3 rounded-2xl text-xs font-black uppercase tracking-widest flex items-center justify-center space-x-2 hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-100"
+                  />
+                  <button
+                    onClick={() => openInGoogleTranslate(selectedWord.word)}
+                    className="mt-2 w-full text-emerald-700 py-2 rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center space-x-1 hover:bg-emerald-100 transition-all"
                   >
-                    <ExternalLink size={14} />
-                    <span>Pronounce Word</span>
+                    <ExternalLink size={12} />
+                    <span>Open in Google Translate</span>
                   </button>
                 </div>
 
@@ -447,7 +453,7 @@ const Quran: React.FC = () => {
                 <BookOpen size={40} className="text-emerald-400" />
                </div>
                <h3 className="text-2xl font-bold">114 Surahs Indexed</h3>
-               <p className="text-emerald-100 opacity-70 leading-relaxed">Select any verse or word to begin a deep linguistic and spiritual analysis powered by Gemini AI.</p>
+               <p className="text-emerald-100 opacity-70 leading-relaxed">Select any verse or word to begin a deep linguistic and spiritual analysis powered by Groq AI.</p>
              </div>
           )}
         </div>

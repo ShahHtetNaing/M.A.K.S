@@ -1,20 +1,24 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://ai.google.dev/static/site-assets/images/share-ais-513315318.png" />
-</div>
+# M.A.K.S — Modern Arabic & Quran Study
 
-# Run and deploy your AI Studio app
+React + Vite app for learning Arabic and studying the Quran.
 
-This contains everything you need to run your app locally.
+- **AI Tutor, Lughat word analysis, verse deep-dives** — powered by the [Groq API](https://console.groq.com) through a small server-side proxy (`/api/groq`), so the key is never shipped to the browser. Without a key the site runs in offline mode: the AI features show a notice and everything else keeps working.
+- **Pronunciation** — lesson "Pronounce" buttons, inline Arabic word cards and the Lughat panel play Arabic audio from Google Translate TTS, falling back to the browser's speech synthesis if that fails.
+- **Quran explorer** — Surah index, word-level analysis, global Ayat search and full-Surah recitation by Sheikh Mishary Rashid Alafasy (alquran.cloud / islamic.network).
 
-View your app in AI Studio: https://ai.studio/apps/6d8555a6-9a2d-4d4b-82c9-50b0eef66084
+## Run locally
 
-## Run Locally
+Prerequisites: Node.js 18+
 
-**Prerequisites:**  Node.js
+1. `npm install`
+2. Copy `.env.example` to `.env.local` and set `GROQ_API_KEY` (optional — leave empty for offline mode).
+3. `npm run dev` → http://localhost:3000
 
+The Vite dev/preview server serves `/api/groq` itself (see `vite.config.ts`).
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+## Deploy (Netlify)
+
+`netlify.toml` builds with `npm run build`, publishes `dist`, and deploys `netlify/functions/groq.ts` at `/api/groq`.
+Set `GROQ_API_KEY` (and optionally `GROQ_MODEL`) under **Site configuration → Environment variables**, then redeploy.
+
+Default model chain: `GROQ_MODEL` (if set) → `openai/gpt-oss-120b` → `qwen/qwen3.8-27b` → `openai/gpt-oss-20b`. Groq retires models regularly; check https://console.groq.com/docs/deprecations if AI calls start failing.
