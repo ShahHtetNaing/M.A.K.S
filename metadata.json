@@ -1,0 +1,8 @@
+{
+  "name": "M.A.K.S (Modern Arabic & Quran Study)",
+  "description": "A modern platform for learning Arabic from beginner to professional levels and studying the Quran with AI-powered insights, interactive lessons, and community discussions.",
+  "requestFramePermissions": [
+    "microphone"
+  ],
+  "majorCapabilities": []
+}
