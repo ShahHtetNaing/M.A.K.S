@@ -153,6 +153,10 @@ const Quran: React.FC = () => {
 
   const stopFullRecital = () => {
     if (audioRef.current) {
+      const audio = audioRef.current;
+      audio.oncanplaythrough = null;
+      audio.onended = null;
+      audio.onerror = null;
       audioRef.current.pause();
       audioRef.current.src = ''; 
       audioRef.current.load(); 
